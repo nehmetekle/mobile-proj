@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
-// import { onValue, ref } from 'firebase/database';
-// import { db } from '../../firebase';
+import { onValue, ref } from 'firebase/database';
+import { db } from './firebase'
 import nightnight from './images/nightnight.jpg'
 import { useNavigation } from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -25,13 +25,16 @@ const SignIn = () => {
     navigation.navigate('Create Account');
   };
   const handleNavigateToHome = () => {
-    navigation.navigate('Home');
+
+    
+    handleSubmit()
+    // navigation.navigate('Home');
   };
 
   useEffect(() => {
     const fetchUsersData = async () => {
       try {
-        const dataRef = ref(db, 'users');
+        const dataRef = ref(db, "users");
         onValue(dataRef, (snapshot) => {
           const fetchedData = snapshot.val();
           if (fetchedData) {
@@ -40,7 +43,7 @@ const SignIn = () => {
           }
         });
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
     fetchUsersData();
@@ -85,10 +88,19 @@ const SignIn = () => {
         password: '',
       });
 
-      const { userID } = currentUser;
+      storeUser(currentUser);
       // Handle navigation in React Native (e.g., using React Navigation)
       // You may want to replace the following line with your navigation logic
-      // navigation.navigate('Home');
+      navigation.navigate('Home', {'paramPropKey': 'paramPropValue'});
+    }
+  };
+
+  const storeUser = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem('user', jsonValue);
+    } catch (e) {
+      // saving error
     }
   };
 
