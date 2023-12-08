@@ -4,8 +4,12 @@ import { View, Text, TextInput, Button, ImageBackground, TouchableOpacity } from
 import DateTimePicker from '@react-native-community/datetimepicker';
 import nature from './images/nature.jpg';
 import { AntDesign } from "@expo/vector-icons";
+// import Geolocation from '@react-native-community/geolocation';
 
-const HomePage = () => {
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const HomePage = ({}) => {
     const [fromDestination, setFromDestination] = useState('');
     const [toDestination, setToDestination] = useState('');
     const [startDate, setStartDate] = useState(new Date());
@@ -34,6 +38,22 @@ const HomePage = () => {
       setShowEndDatePicker(Platform.OS === 'ios'); // On iOS, the picker doesn't close automatically
       setEndDate(selectedDate || endDate);
     };
+
+    // const [currentLocation, setCurrentLocation] = useState(null);
+
+    // const getLocation = () => {
+    //   Geolocation.getCurrentPosition(
+    //     (position) => {
+    //       setCurrentLocation(position.coords);
+    //     },
+    //     (error) => {
+    //       console.log(error.code, error.message);
+    //     },
+    //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    //   );
+    // };
+  
+
   
     return (
       <View style={styles.container}>
@@ -102,8 +122,24 @@ const HomePage = () => {
                 style={styles.dateTimePicker}
               />
             )}
+
+
+{/* <TouchableOpacity onPress={getLocation}>
+  <Text>Get Current Location</Text>
+</TouchableOpacity>
+
+
+<View>
+  {currentLocation && (
+    <Text>
+      Latitude: {currentLocation.latitude}, Longitude: {currentLocation.longitude}
+    </Text>
+  )}
+</View> */}
+
   
-            <Button title="Search" onPress={handleSearch} color='#000'/>
+            <Button title="Search" onPress={handleSearch} color='#000' />
+            {/* <Button title="Get Location" onPress={getLocation} color='#000' /> */}
           </View>
         </View>
         </ImageBackground>
@@ -163,7 +199,7 @@ const styles = {
 
     marginBottom: 5,
     fontSize: 20,
-    color: '#000',
+    color: '#fff',
     fontWeight: "bold"
   },
   input: {

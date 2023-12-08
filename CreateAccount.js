@@ -2,28 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 // import { onValue, ref } from 'firebase/database';
 // import { db } from '../../firebase';
-import nightnight from './images/nightnight.jpg'
+import create from './images/create.jpg'
 import { useNavigation } from '@react-navigation/native';
 
-
-const SignIn = () => {
+const CreateAccount = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
+    username: '',
   });
 
   const [errors, setErrors] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
+    username: '',
   });
 
   const [usersData, setUsersData] = useState([]);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const navigation = useNavigation(); 
 
-  const handleNavigateToCreate = () => {
-    navigation.navigate('Create Account');
-  };
   const handleNavigateToHome = () => {
     navigation.navigate('Home');
   };
@@ -46,36 +47,72 @@ const SignIn = () => {
     fetchUsersData();
   }, []);
 
-  const userExists = usersData.some(
-    (user) => user.email === formData.email && user.password === formData.password
-  );
-
-  const currentUser = usersData.find(
-    (user) => user.email === formData.email && user.password === formData.password
-  );
-
   const handleChange = (name, value) => {
     setFormData({
       ...formData,
       [name]: value,
     });
+
     setErrors({
       ...errors,
       [name]: '',
     });
   };
 
+  const isValidEmail = (text) => {
+    const emailRegex = /\S+@\S+\.\S+/;
+    return emailRegex.test(text);
+  };
+
+  const isValidPassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
   const handleSubmit = () => {
-    if (!formData.email || !formData.password) {
+    setFormSubmitted(true);
+    
+    if (!formData.email || !formData.password || !formData.confirmPassword || !formData.username) {
       setErrors({
         email: !formData.email ? 'Email is required' : '',
         password: !formData.password ? 'Password is required' : '',
+        confirmPassword: !formData.confirmPassword ? 'Confirm Password is required' : '',
+        username: !formData.username ? 'Username is required' : '',
+      });
+      return;
+    }
+    if (!isValidEmail(formData.email)) {
+      setErrors({
+        ...errors,
+        email: 'Please enter a valid email address',
       });
       return;
     }
 
+    if (!isValidPassword(formData.password)) {
+      setErrors({
+        ...errors,
+        password:
+          'Password must be at least 8 characters long with an uppercase letter, a lowercase letter, and a special character.',
+      });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrors({
+        ...errors,
+        confirmPassword: 'Passwords do not match',
+      });
+      return;
+    }
+
+    const userExists = usersData.some(
+      (user) => user.email === formData.email && user.password === formData.password
+    );
+
     if (!userExists) {
       setErrors({
+        ...errors,
         password: 'Incorrect password',
       });
       return;
@@ -84,6 +121,11 @@ const SignIn = () => {
         ...errors,
         password: '',
       });
+    
+      
+      const currentUser = usersData.find(
+        (user) => user.email === formData.email && user.password === formData.password
+      );
 
       const { userID } = currentUser;
       // Handle navigation in React Native (e.g., using React Navigation)
@@ -92,16 +134,10 @@ const SignIn = () => {
     }
   };
 
-  const handleCreateAccount = () => {
-    // Handle navigation to sign-up screen
-    // You may want to replace the following line with your navigation logic
-    // navigation.navigate('SignUp');
-  };
-
   return (
-    <ImageBackground source={nightnight} style={styles.container}>
+    <ImageBackground source={create} style={styles.container}>
       <View style={styles.loginContainer}>
-        <Text style={styles.loginHeading}>Login</Text>
+        <Text style={styles.loginHeading}>Create Account</Text>
         <View>
           <Text style={styles.loginLabel}>Email:</Text>
           <TextInput
@@ -110,11 +146,24 @@ const SignIn = () => {
             value={formData.email}
             onChangeText={(text) => handleChange('email', text)}
             placeholder="Email"
-            // placeholderTextColor={'black'}
           />
-          {errors.email && <Text style={styles.errorMessage}>{errors.email}</Text>}
+          {formSubmitted && !formData.email && (
+            <Text style={styles.errorMessage}>{errors.email}</Text>
+          )}
         </View>
-
+        <View>
+          <Text style={styles.loginLabel}>Username:</Text>
+          <TextInput
+            style={styles.loginInput}
+            keyboardType="default"
+            value={formData.username}
+            onChangeText={(text) => handleChange('username', text)}
+            placeholder="Username"
+          />
+          {formSubmitted && !formData.username && (
+            <Text style={styles.errorMessage}>{errors.username}</Text>
+          )}
+        </View>
         <View>
           <Text style={styles.loginLabel}>Password:</Text>
           <TextInput
@@ -124,17 +173,27 @@ const SignIn = () => {
             onChangeText={(text) => handleChange('password', text)}
             placeholder="Password"
           />
-          {errors.password && <Text style={styles.errorMessage}>{errors.password}</Text>}
+          {formSubmitted && !formData.password && (
+            <Text style={styles.errorMessage}>{errors.password}</Text>
+          )}
+        </View>
+        <View>
+          <Text style={styles.loginLabel}>Confirm Password:</Text>
+          <TextInput
+            style={styles.loginInput}
+            secureTextEntry
+            value={formData.confirmPassword}
+            onChangeText={(text) => handleChange('confirmPassword', text)}
+            placeholder="Confirm Password"
+          />
+          {formSubmitted && !formData.confirmPassword && (
+            <Text style={styles.errorMessage}>{errors.confirmPassword}</Text>
+          )}
         </View>
 
-        <View style={styles.buttons}>
-          <TouchableOpacity onPress={handleNavigateToHome} style={styles.loginButton}>
-            <Text>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNavigateToCreate} style={styles.createAccountButton}>
-            <Text>Create Account</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={handleNavigateToHome} style={styles.createAccountButton}>
+          <Text>Create Account</Text>
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -178,18 +237,6 @@ const styles = {
     color: 'red',
     marginBottom: 10,
   },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  loginButton: {
-    backgroundColor: '#007bff',
-    padding: 12,
-    borderRadius: 5,
-    width: '45%',
-    alignItems: 'center',
-  },
   createAccountButton: {
     backgroundColor: '#28a745',
     padding: 12,
@@ -197,12 +244,6 @@ const styles = {
     width: '45%',
     alignItems: 'center',
   },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
 };
 
-
-
-export default SignIn;
+export default CreateAccount;
