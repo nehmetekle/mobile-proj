@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { onValue, ref } from 'firebase/database';
-import { db } from './firebase'
-import nightnight from './images/nightnight.jpg'
+import { db } from './firebase';
+import nightnight from './images/nightnight.jpg';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -19,22 +19,21 @@ const SignIn = () => {
 
   const [usersData, setUsersData] = useState([]);
 
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
 
   const handleNavigateToCreate = () => {
     navigation.navigate('Create Account');
   };
-  const handleNavigateToHome = () => {
 
-    
-    handleSubmit()
+  const handleNavigateToHome = () => {
+    handleSubmit();
     // navigation.navigate('Home');
   };
 
   useEffect(() => {
     const fetchUsersData = async () => {
       try {
-        const dataRef = ref(db, "users");
+        const dataRef = ref(db, 'users');
         onValue(dataRef, (snapshot) => {
           const fetchedData = snapshot.val();
           if (fetchedData) {
@@ -43,7 +42,7 @@ const SignIn = () => {
           }
         });
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
       }
     };
     fetchUsersData();
@@ -89,9 +88,7 @@ const SignIn = () => {
       });
 
       storeUser(currentUser);
-      // Handle navigation in React Native (e.g., using React Navigation)
-      // You may want to replace the following line with your navigation logic
-      navigation.navigate('Home', {'paramPropKey': 'paramPropValue'});
+      navigation.navigate('Home', { paramPropKey: 'paramPropValue' });
     }
   };
 
@@ -105,9 +102,7 @@ const SignIn = () => {
   };
 
   const handleCreateAccount = () => {
-    // Handle navigation to sign-up screen
-    // You may want to replace the following line with your navigation logic
-    // navigation.navigate('SignUp');
+    navigation.navigate('Sign Up');
   };
 
   return (
@@ -122,7 +117,6 @@ const SignIn = () => {
             value={formData.email}
             onChangeText={(text) => handleChange('email', text)}
             placeholder="Email"
-            // placeholderTextColor={'black'}
           />
           {errors.email && <Text style={styles.errorMessage}>{errors.email}</Text>}
         </View>
@@ -143,7 +137,7 @@ const SignIn = () => {
           <TouchableOpacity onPress={handleNavigateToHome} style={styles.loginButton}>
             <Text>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleNavigateToCreate} style={styles.createAccountButton}>
+          <TouchableOpacity onPress={handleCreateAccount} style={styles.createAccountButton}>
             <Text>Create Account</Text>
           </TouchableOpacity>
         </View>
@@ -214,7 +208,5 @@ const styles = {
     fontWeight: 'bold',
   },
 };
-
-
 
 export default SignIn;

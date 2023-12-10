@@ -16,12 +16,12 @@ import {
   get,
   child,
   ref,
-  remove,
-  onValue,
 } from "firebase/database";
 import { db } from "./firebase";
 
 const SignUp = () => {
+  const navigation = useNavigation();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,8 +42,8 @@ const SignUp = () => {
       lastId = users.length;
     }
 
-    const db = getDatabase();
-    set(ref(db, "users/" + lastId), {
+    const database = getDatabase();
+    set(ref(database, `users/${lastId}`), {
       userId: lastId,
       email,
       password,
@@ -54,15 +54,13 @@ const SignUp = () => {
     setFormData((prevData) => ({ ...prevData, [field]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Reset error messages
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setEmailError("Invalid email address");
@@ -83,7 +81,9 @@ const SignUp = () => {
       return;
     }
 
-    writeUserData(formData.email, formData.password);
+    // Assuming "SignIn" is the name of your sign-in screen
+    await writeUserData(formData.email, formData.password);
+    navigation.navigate("Sign In");
   };
 
   return (
@@ -109,7 +109,6 @@ const SignUp = () => {
             onChangeText={(text) => handleChange("password", text)}
           />
           <Text style={styles.signupLabel}>Confirm Password:</Text>
-
           <TextInput
             style={styles.signupInput}
             placeholder="Confirm Password"
@@ -117,13 +116,9 @@ const SignUp = () => {
             value={formData.confirmPassword}
             onChangeText={(text) => handleChange("confirmPassword", text)}
           />
-
           <Text style={styles.errorMessage}>{emailError}</Text>
           <Text style={styles.errorMessage}>{passwordError}</Text>
           <Text style={styles.errorMessage}>{confirmPasswordError}</Text>
-
-          {/* Similar inputs for password and confirm password */}
-
           <Button
             title="Sign Up"
             onPress={handleSubmit}

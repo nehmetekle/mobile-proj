@@ -14,9 +14,8 @@ function MyDrawer() {
   return (
     <Drawer.Navigator>
       <Drawer.Screen name="Home" component={HomePage} />
-      <Drawer.Screen name='Sign In' component={SignIn} />
-      <Drawer.Screen name='Sign Up' component={Signup}  />
       <Drawer.Screen name='Manage Booking' component={ManageBooking} />
+      <Drawer.Screen name='Sign In' component={SignIn} />
     </Drawer.Navigator>
   );
 }
@@ -26,9 +25,8 @@ const MyStack = () => {
     <Stack.Navigator initialRouteName="HomePage">
       <Stack.Screen name="HomePage" options={{ headerShown: false }} component={MyDrawer} />
       <Stack.Screen name="Manage Booking" component={ManageBooking} />
-        <Stack.Screen name="Create Account" component={CreateAccount} />
-        
-      {/* Other screens for stack navigation */}
+      
+      <Drawer.Screen name='Sign Up' component={Signup}  />
     </Stack.Navigator>
   );
 };
