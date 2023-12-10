@@ -13,7 +13,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { getDatabase, child, ref, get } from "firebase/database";
+import { getDatabase, child, ref, get, set } from "firebase/database";
 import { db } from "./firebase";
 
 import nature from "./images/nature.jpg";
@@ -27,6 +27,65 @@ const HomePage = ({ route }) => {
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [offersData, setOffersData] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
+  const generateETicket = () => {
+    const firstLetter = currentUser.email.charAt(0).toUpperCase();
+    const randomNumbers = Math.floor(100 + Math.random() * 900);
+    return `${firstLetter}${randomNumbers}`;
+  };
+
+  const handleBook = async (offerId) => {
+    try {
+      const dbRef = ref(getDatabase());
+      const bookingHistoryRef = child(dbRef, "booking_history");
+
+      const data = await get(bookingHistoryRef);
+
+      if (data.exists()) {
+        const flightHistory = Object.values(data.val());
+
+        const isFlightBooked = flightHistory.some(
+          (entry) =>
+            entry.offerId === offerId && entry.user_id.userId === currentUser.userId
+        );
+
+        if (!isFlightBooked) {
+          const db = getDatabase();
+          const length = flightHistory.length;
+          const lastId = length > 0 ? flightHistory[length - 1].id + 1 : 1;
+
+          const eTicket = generateETicket();
+
+          set(ref(db, `booking_history/${lastId.toString()}`), {
+            id: lastId,
+            offerId: offerId,
+            user_id: currentUser.userId,
+            eTicket: eTicket,
+          });
+
+          console.log(
+            `Flight with offer ID ${offerId} booked for user ${currentUser.userId}. E-ticket: ${eTicket}`
+          );
+        }
+      } else {
+        const eTicket = generateETicket();
+
+        set(ref(db, "booking_history/1"), {
+          id: 1,
+          offerId: offerId,
+          user_id: currentUser.userId,
+          eTicket: eTicket,
+        });
+
+        window.localStorage.setItem("eTicket", eTicket);
+        console.log(
+          `Flight with offer ID ${offerId} booked for user ${currentUser.userId}. E-ticket: ${eTicket}`
+        );
+      }
+    } catch (error) {
+      console.error("Error booking the flight:", error.message);
+    }
+  };
 
   const handleStartDatePress = () => {
     setShowStartDatePicker(true);
@@ -156,7 +215,7 @@ const HomePage = ({ route }) => {
                   Arrival Date: {flight.arrival_date}
                 </Text>
                 <Text style={styles.text}>Price: {flight.price}</Text>
-                <Button title="Book now" />
+                <Button title="Book now" onPress={() => handleBook(flight.id)} />
               </View>
             ))}
           </View>
@@ -165,6 +224,7 @@ const HomePage = ({ route }) => {
     </ScrollView>
   );
 };
+
 
 const styles = {
   container: {

@@ -123,6 +123,7 @@ const SignUp = () => {
             title="Sign Up"
             onPress={handleSubmit}
             style={styles.signupButton}
+            disabled={!formData.email|| !formData.confirmPassword|| !formData.confirmPassword}
           />
         </View>
       </View>

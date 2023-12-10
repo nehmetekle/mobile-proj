@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-
 import { onValue, ref } from 'firebase/database';
 import { db } from './firebase';
 import nightnight from './images/nightnight.jpg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = () => {
@@ -25,10 +25,19 @@ const SignIn = () => {
     navigation.navigate('Create Account');
   };
 
-  const handleNavigateToHome = () => {
-    handleSubmit();
-    // navigation.navigate('Home');
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      setFormData({
+        email: '',
+        password: '',
+      });
+      setErrors({
+        email: '',
+        password: '',
+      });
+      setUsersData([]);
+    }, [])
+  );
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -97,7 +106,7 @@ const SignIn = () => {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem('user', jsonValue);
     } catch (e) {
-      // saving error
+      console.error('Error storing user:', e);
     }
   };
 
@@ -134,7 +143,7 @@ const SignIn = () => {
         </View>
 
         <View style={styles.buttons}>
-          <TouchableOpacity onPress={handleNavigateToHome} style={styles.loginButton}>
+          <TouchableOpacity onPress={handleSubmit} style={styles.loginButton}>
             <Text>Login</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleCreateAccount} style={styles.createAccountButton}>
