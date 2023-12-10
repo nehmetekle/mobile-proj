@@ -6,29 +6,19 @@ import {
   Button,
   ImageBackground,
   TouchableOpacity,
+  ScrollView,
+  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import nature from "./images/nature.jpg";
 import { AntDesign } from "@expo/vector-icons";
-// import Geolocation from '@react-native-community/geolocation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  getDatabase,
-  set,
-  get,
-  child,
-  ref,
-  remove,
-  onValue,
-} from "firebase/database";
+import { getDatabase, child, ref, get } from "firebase/database";
 import { db } from "./firebase";
-import { ScrollView } from "react-native-gesture-handler";
 
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import nature from "./images/nature.jpg";
 
-const HomePage = ({route}) => {
+const HomePage = ({ route }) => {
   const [fromDestination, setFromDestination] = useState("");
   const [toDestination, setToDestination] = useState("");
   const [startDate, setStartDate] = useState(new Date());
@@ -36,7 +26,7 @@ const HomePage = ({route}) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [offersData, setOffersData] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleStartDatePress = () => {
     setShowStartDatePicker(true);
@@ -67,64 +57,35 @@ const HomePage = ({route}) => {
   };
 
   const handleStartDateChange = (event, selectedDate) => {
-    setShowStartDatePicker(Platform.OS === "ios"); // On iOS, the picker doesn't close automatically
+    setShowStartDatePicker(Platform.OS === "ios");
     setStartDate(selectedDate || startDate);
   };
 
   const handleEndDateChange = (event, selectedDate) => {
-    setShowEndDatePicker(Platform.OS === "ios"); // On iOS, the picker doesn't close automatically
+    setShowEndDatePicker(Platform.OS === "ios");
     setEndDate(selectedDate || endDate);
   };
 
   useEffect(() => {
-   
     const getUser = async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem('user');
-        const user = JSON.parse(jsonValue)
-        setCurrentUser(user)
-        // console.log(jsonValue)
-        // return jsonValue != null ?  jsonValue : null;
+        const jsonValue = await AsyncStorage.getItem("user");
+        const user = JSON.parse(jsonValue);
+        setCurrentUser(user);
       } catch (e) {
         // error reading value
       }
     };
 
-    getUser()
-    console.log("user:: ", currentUser);
-
-
-
-
+    getUser();
   }, [route]);
 
   console.log(offersData);
-  // const [currentLocation, setCurrentLocation] = useState(null);
-
-  // const getLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     (position) => {
-  //       setCurrentLocation(position.coords);
-  //     },
-  //     (error) => {
-  //       console.log(error.code, error.message);
-  //     },
-  //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  //   );
-  // };
 
   return (
-    <ScrollView>
-          <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
       <ImageBackground source={nature} style={styles.image}>
         <View style={styles.wrapper}>
-          <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => {}}>
-              <View style={styles.iconContainer}>
-                {/* <AntDesign name="appstore-o" size={24} style={styles.NavLogo}/> */}
-              </View>
-            </TouchableOpacity>
-          </View>
           <View style={styles.header}>
             <Text style={styles.title}>Where do you want to explore?</Text>
           </View>
@@ -182,46 +143,36 @@ const HomePage = ({route}) => {
               />
             )}
 
-            {/* <TouchableOpacity onPress={getLocation}>
-  <Text>Get Current Location</Text>
-</TouchableOpacity>
-
-
-<View>
-  {currentLocation && (
-    <Text>
-      Latitude: {currentLocation.latitude}, Longitude: {currentLocation.longitude}
-    </Text>
-  )}
-</View> */}
-
             <Button title="Search" onPress={handleSearch} color="#000" />
-            {/* <Button title="Get Location" onPress={getLocation} color='#000' /> */}
 
-            {
-            offersData.map((flight) => <Text key={flight.id}>{flight.arrival}</Text>)
-          }
+            {offersData.map((flight) => (
+              <View key={flight.id} style={styles.offerContainer}>
+                <Text style={styles.text}>Departure: {flight.depature}</Text>
+                <Text style={styles.text}>Arrival: {flight.arrival}</Text>
+                <Text style={styles.text}>
+                  Departure Date: {flight.departure_date}
+                </Text>
+                <Text style={styles.text}>
+                  Arrival Date: {flight.arrival_date}
+                </Text>
+                <Text style={styles.text}>Price: {flight.price}</Text>
+                <Button title="Book now" />
+              </View>
+            ))}
           </View>
-
-          
         </View>
-        
       </ImageBackground>
-      
-    </View>
     </ScrollView>
   );
 };
 
 const styles = {
-  NavLogo: {
-    color: "red",
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   headerContainer: {
     flexDirection: "row",
@@ -235,8 +186,7 @@ const styles = {
     marginLeft: 10,
   },
   wrapper: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
     padding: 20,
   },
   header: {
@@ -245,8 +195,7 @@ const styles = {
     alignItems: "center",
   },
   image: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
     resizeMode: "cover",
   },
   title: {
@@ -255,8 +204,9 @@ const styles = {
     color: "#fff",
   },
   content: {
-    flex: 2,
+    flex: 1,
     marginTop: 20,
+    marginBottom: 20,
   },
   label: {
     marginBottom: 5,
@@ -267,25 +217,33 @@ const styles = {
   input: {
     borderWidth: 1,
     borderColor: "white",
-
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 16,
+    color: "black",
   },
   dateContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 15,
   },
-  datePickerContainer: {
-    flex: 1,
-  },
   dateTimePicker: {
-    backgroundColor: "transparent",
-    color: "white",
+    backgroundColor: "white",
     marginTop: 10,
+    marginBottom: 10,
+  },
+  offerContainer: {
+    padding: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+  },
+  text: {
+    fontSize: 16,
+    marginBottom: 5,
   },
 };
 
