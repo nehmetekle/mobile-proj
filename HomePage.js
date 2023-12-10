@@ -197,6 +197,7 @@ const styles = {
   image: {
     flex: 1,
     resizeMode: "cover",
+    posititon: "absolute"
   },
   title: {
     fontSize: 24,
