@@ -6,7 +6,6 @@ import SignIn from './SignIn';
 import ManageBooking from './BookingForm';
 import Signup from './Signup';
 import CreateAccount from './CreateAccount'
-import SpecialOffers from './SpecialOffers';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -18,7 +17,6 @@ function MyDrawer() {
       <Drawer.Screen name='Sign In' component={SignIn} />
       <Drawer.Screen name='Sign Up' component={Signup}  />
       <Drawer.Screen name='Manage Booking' component={ManageBooking} />
-      <Drawer.Screen name='Special Offers' component={SpecialOffers} /> 
     </Drawer.Navigator>
   );
 }
