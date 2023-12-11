@@ -26,7 +26,7 @@ function MyDrawer(props) {
     <Drawer.Navigator>
       <Drawer.Screen name="Home" component={HomePage} />
       <Drawer.Screen name="Manage Booking" component={ManageBooking} />
-      { user !== null ? <Drawer.Screen name="Sign Out" component={SignOut} /> : <Drawer.Screen name="Sign In" component={SignIn} />}
+      { user !== null ? <></> : <Drawer.Screen name="Sign In" component={SignIn} />}
     </Drawer.Navigator>
   );
 }

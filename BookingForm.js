@@ -24,6 +24,8 @@ const ManageBooking = () => {
   const [userFlights, setUserFlights] = useState([]);
   const [user, setUser] = useState(null);
   const isFocused = useIsFocused();
+
+  
  
   useEffect(() => {
     const fetchData = async () => {
@@ -95,7 +97,9 @@ const ManageBooking = () => {
             <Text style={styles.bookingText}>eTicket: {booking.eTicket}</Text>
             <Text style={styles.bookingText}>Departure Country: {booking.data.depature}</Text>
             <Text style={styles.bookingText}>Arrival Country: {booking.data.arrival}</Text>
-            {/* Add more details as needed */}
+            <TouchableOpacity onPress={() => handleCancel(userFlights.id)}>
+            <Text style={styles.cancelButton}>Cancel</Text>
+          </TouchableOpacity>
           </View>
         ))}
       </ImageBackground>
@@ -149,6 +153,11 @@ const styles = StyleSheet.create({
   bookingText: {
     color: 'white',
     fontSize: 16,
+  },
+
+  cancelButton: {
+    color: 'red', 
+    marginTop: 10,
   },
 });
  

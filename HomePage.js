@@ -18,8 +18,9 @@ import { db } from "./firebase";
 
 import nature from "./images/nature.jpg";
 import { Notifications, Permissions } from "expo";
+import { useNavigation } from "@react-navigation/native";
 
-const HomePage = ({ route }) => {
+const HomePage = ({ navigation, route }) => {
   const [fromDestination, setFromDestination] = useState("");
   const [toDestination, setToDestination] = useState("");
   const [startDate, setStartDate] = useState(new Date());
@@ -177,7 +178,14 @@ const HomePage = ({ route }) => {
     };
 
     getUser();
-  }, [route]);
+  }, []);
+
+  const signOut = async () => {
+    await AsyncStorage.removeItem('user')
+    setCurrentUser(null)
+    navigation.navigate("Sign Up");
+    
+  }
 
   console.log(offersData);
 
@@ -187,6 +195,7 @@ const HomePage = ({ route }) => {
       contentContainerStyle={styles.scrollContainer}
     >
       <ImageBackground source={nature} style={styles.image}>
+        <TouchableOpacity onPress={signOut}><Text>Sign out</Text></TouchableOpacity>
         <View style={styles.wrapper}>
           <View style={styles.header}>
             <Text style={styles.title}>Where do you want to explore?</Text>
