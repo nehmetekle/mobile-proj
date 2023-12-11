@@ -17,6 +17,7 @@ import { getDatabase, child, ref, get, set } from "firebase/database";
 import { db } from "./firebase";
 
 import nature from "./images/nature.jpg";
+import { Notifications, Permissions } from "expo";
 
 const HomePage = ({ route }) => {
   const [fromDestination, setFromDestination] = useState("");
@@ -46,7 +47,8 @@ const HomePage = ({ route }) => {
 
         const isFlightBooked = flightHistory.some(
           (entry) =>
-            entry.offerId === offerId && entry.user_id.userId === currentUser.userId
+            entry.offerId === offerId &&
+            entry.user_id.userId === currentUser.userId
         );
 
         if (!isFlightBooked) {
@@ -67,6 +69,7 @@ const HomePage = ({ route }) => {
             `Flight with offer ID ${offerId} booked for user ${currentUser.userId}. E-ticket: ${eTicket}`
           );
         }
+        sendNotification();
       } else {
         const eTicket = generateETicket();
 
@@ -82,9 +85,37 @@ const HomePage = ({ route }) => {
           `Flight with offer ID ${offerId} booked for user ${currentUser.userId}. E-ticket: ${eTicket}`
         );
       }
+      sendNotification();
     } catch (error) {
       console.error("Error booking the flight:", error.message);
     }
+  };
+
+  const sendNotification = async () => {
+    // Check and ask for permissions if not granted
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+
+    if (status !== "granted") {
+      alert("Permission to receive notifications was denied!");
+      return;
+    }
+
+    // Get the push token for the user
+    const pushToken = await Notifications.getExpoPushTokenAsync();
+
+    // Construct the notification content
+    const notificationContent = {
+      to: pushToken,
+      sound: "default",
+      title: "Booking Successful",
+      body: "Your flight booking was successful. Have a great journey!",
+    };
+
+    // Send the notification
+    await Notifications.scheduleNotificationAsync({
+      content: notificationContent,
+      trigger: null, // Send immediately
+    });
   };
 
   const handleStartDatePress = () => {
@@ -104,8 +135,17 @@ const HomePage = ({ route }) => {
         const snapshot = await get(child(dbRef, "special_offers"));
 
         if (snapshot.exists()) {
-          const data = snapshot.val();
-          setOffersData(data);
+          const data = Object.values(snapshot.val());
+
+          let newData = [];
+          data.forEach((d) => {
+            if (d.arrival === toDestination && d.depature === fromDestination) {
+              newData.push(d);
+            }
+          });
+          console.log(":newData ", newData);
+          if (newData.length > 0) setOffersData(newData);
+          else setOffersData(data);
         }
       } catch (error) {
         console.error("Error fetching special offers:", error.message);
@@ -142,7 +182,10 @@ const HomePage = ({ route }) => {
   console.log(offersData);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContainer}
+    >
       <ImageBackground source={nature} style={styles.image}>
         <View style={styles.wrapper}>
           <View style={styles.header}>
@@ -206,6 +249,10 @@ const HomePage = ({ route }) => {
 
             {offersData.map((flight) => (
               <View key={flight.id} style={styles.offerContainer}>
+                {/* <Image-
+      source={{ uri: flight.image }}
+      style={styles.images}  // Make sure to define the 'image' style in your styles
+    /> */}
                 <Text style={styles.text}>Departure: {flight.depature}</Text>
                 <Text style={styles.text}>Arrival: {flight.arrival}</Text>
                 <Text style={styles.text}>
@@ -215,7 +262,10 @@ const HomePage = ({ route }) => {
                   Arrival Date: {flight.arrival_date}
                 </Text>
                 <Text style={styles.text}>Price: {flight.price}</Text>
-                <Button title="Book now" onPress={() => handleBook(flight.id)} />
+                <Button
+                  title="Book now"
+                  onPress={() => handleBook(flight.id)}
+                />
               </View>
             ))}
           </View>
@@ -224,7 +274,6 @@ const HomePage = ({ route }) => {
     </ScrollView>
   );
 };
-
 
 const styles = {
   container: {
@@ -304,6 +353,12 @@ const styles = {
   text: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  images: {
+    width: 100, // Adjust the width and height based on your design
+    height: 100,
+    resizeMode: "cover", // Adjust the resizeMode based on your design preference
+    marginBottom: 10, // Add any additional styling as needed
   },
 };
 

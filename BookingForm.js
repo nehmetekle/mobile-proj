@@ -93,8 +93,8 @@ const ManageBooking = () => {
           <View key={index} style={styles.bookingDetails}>
             <Text style={styles.bookingText}>Offer: {booking.data.offerName}</Text>
             <Text style={styles.bookingText}>eTicket: {booking.eTicket}</Text>
-            <Text style={styles.bookingText}>Departure Country: {booking.departureCountry}</Text>
-            <Text style={styles.bookingText}>Arrival Country: {booking.arrivalCountry}</Text>
+            <Text style={styles.bookingText}>Departure Country: {booking.data.depature}</Text>
+            <Text style={styles.bookingText}>Arrival Country: {booking.data.arrival}</Text>
             {/* Add more details as needed */}
           </View>
         ))}
